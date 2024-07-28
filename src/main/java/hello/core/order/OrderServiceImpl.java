@@ -3,21 +3,23 @@ package hello.core.order;
 import hello.core.discount.DiscountPolicy;
 import hello.core.member.Member;
 import hello.core.member.MemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     private final MemberRepository memberRepository;
     private final DiscountPolicy discountPolicy;
 
-    @Autowired // 스프링 컨테이너가 빈(Bean)으로 등록된 객체들 중에서, 해당 타입에 맞는 빈을 찾아 주입 (MemoryMemberRepository, RateDiscountPolicy)
-               // `@Autowired` 를 사용하면 생성자에서 여러 의존관계도 한번에 주입받을 수 있다.
-    public OrderServiceImpl(MemberRepository memberRepository, DiscountPolicy discountPolicy) {
-        this.memberRepository = memberRepository;
-        this.discountPolicy = discountPolicy;
-    }
+    // 스프링 컨테이너가 빈(Bean)으로 등록된 객체들 중에서, 해당 타입에 맞는 빈을 찾아 주입 (MemoryMemberRepository, RateDiscountPolicy)
+    // `@Autowired` 를 사용하면 생성자에서 여러 의존관계도 한번에 주입받을 수 있다.
+
+    /*
+        기존의 생성자 코드를 롬복 라이브러리가 제공하는 `@RequiredArgsConstructor` 기능을 사용하여 final이 붙은 필드를 모아서 생성자를 자동으로 생성 하는것으로 대체
+    */
+
 
     @Override
     public Order createOrder(Long memberId, String itemName, int itemPrice) {
