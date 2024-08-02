@@ -2,6 +2,9 @@ package hello.core.lifecycle;
 
 // 실제로 네트워크에 연결하는 것은 아니고 예제코드임. (빈 생명주기 콜백 테스트를 위한 단순 로그 출력)
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
 public class NetworkClient {
 
     private String url;
@@ -28,11 +31,13 @@ public class NetworkClient {
         System.out.println("close: " + url);
     }
 
+    @PostConstruct
     public void init() {
         connect();
         call("초기화 연결 메시지");
     }
 
+    @PreDestroy
     public void close() {
         disconnect();
     }
