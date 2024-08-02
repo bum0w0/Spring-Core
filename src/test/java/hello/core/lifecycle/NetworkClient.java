@@ -2,17 +2,15 @@ package hello.core.lifecycle;
 
 // 실제로 네트워크에 연결하는 것은 아니고 예제코드임. (빈 생명주기 콜백 테스트를 위한 단순 로그 출력)
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 
-public class NetworkClient {
+public class NetworkClient implements InitializingBean, DisposableBean { // 인터페이스를 통한 빈 생명주기 콜백 지원
 
     private String url;
 
     public NetworkClient() {
         System.out.println("생성자 호출, url = " + url);
-        connect();
-        call("초기화 연결 메시지");
     }
 
     public void setUrl(String url) {
@@ -20,7 +18,6 @@ public class NetworkClient {
     }
 
     // 서비스 시작 시 호출
-    @PostConstruct
     public void connect() {
         System.out.println("connect = " + url);
     }
@@ -30,9 +27,19 @@ public class NetworkClient {
     }
 
     // 서비스 종료 시 호출
-    @PreDestroy
     public void disconnect() {
         System.out.println("close: " + url);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        connect();
+        call("초기화 연결 메시지");
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        disconnect();
     }
 
 
