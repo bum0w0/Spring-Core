@@ -3,6 +3,7 @@ package hello.core.scope;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Scope;
@@ -34,21 +35,21 @@ public class SingletonWithPrototypeTest1 {
 
         ClientBean clientBean2 = ac.getBean(ClientBean.class);
         int count2 = clientBean2.logic();
-        assertThat(count2).isEqualTo(2);
+        assertThat(count2).isEqualTo(1);
     }
 
     @Scope("singleton")
     static class ClientBean {
-        private final PrototypeBean prototypeBean; // 생성시점에 의존성 주입 완료 (prototypeBean)
 
-        // clientBean이 내부에 가지고 있는 프로토타입 빈은 이미 과거에 주입이 끝난 빈이다.
-        // 주입 시점에 스프링 컨테이너에 요청해서 프로토타입 빈이 새로 생성이 된 것이지, 사용 할 때마다 새로 생성되는 것이 아니다. 따라서 count 값은 1, 2 이렇게 증가
         @Autowired
-        public ClientBean(PrototypeBean prototypeBean) {
-            this.prototypeBean = prototypeBean;
-        }
-
+        private ObjectProvider<PrototypeBean> prototypeBeanProvider;
+//        private Provider<PrototypeBean> prototypeBeanProvider; --> jakarta.inject.Provider 사용
         public int logic() {
+            // 의존관계를 외부에서 주입(DI) 받는게 아니라 이렇게 직접 필요한 의존관계를 찾는 것을 Dependency Lookup(DL) 의존관계 조회(탐색) 라고 한다.
+            // prototypeBeanProvider.getObject() 을 통해서 항상 새로운 프로토타입 빈이 생성
+            PrototypeBean prototypeBean = prototypeBeanProvider.getObject();
+//            PrototypeBean prototypeBean = prototypeBeanProvider.get();
+
             prototypeBean.addCount();
             return prototypeBean.getCount();
         }
